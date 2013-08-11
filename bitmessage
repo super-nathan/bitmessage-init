@@ -1,0 +1,68 @@
+#!/bin/bash
+# /etc/init.d/bitmessage
+
+### BEGIN INIT INFO
+# Provides:          bitmessage
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts bitmessage as a background daemon, suitable for servers
+# Description:       This file should be used to construct scripts to be
+#                    placed in /etc/init.d.
+### END INIT INFO
+
+# Author: Super-Nathan <BM-Gu2k3Wy2hpTMYBxSoM2937SPcuU6xzEj>
+
+#Settings
+SERVICE='bitmessage'
+LOGFILE='/dev/null' # this disables logging
+# LOGFILE='/var/log/bitmessage.log' # comment out he above line and un-comment this line to save a log
+COMMAND='python bitmessagemain.py > $LOGFILE'
+USERNAME='root'
+NICELEVEL='19' # from 0-19 the bigger the number, the less the impact on system resources
+HISTORY=1024
+PBM_LOCATION="/path/to/PyBitmessage/src" # by default this $HOME/PyBitmessage/src
+INVOCATION="nice -n ${NICELEVEL} ${COMMAND}"
+
+ME=`whoami`
+as_user() {
+  if [ $ME == $USERNAME ] ; then
+    bash -c "$1"
+  else
+    su - $USERNAME -c "$1"
+  fi
+}
+
+bm_start() {
+echo "Starting $SERVICE..."
+cd $PBM_LOCATION
+as_user "cd $PBM_LOCATION && screen -h $HISTORY -dmS bitmessage $INVOCATION"
+}
+
+
+bm_stop() {
+echo "Stopping $SERVICE"
+as_user "screen -p 0 -S bitmessage -X stuff "'^C'""
+}
+
+
+#Start-Stop here
+case "$1" in
+  start)
+    bm_start
+    ;;
+  stop)
+    bm_stop
+    ;;
+  restart)
+    bm_stop
+    bm_start
+    ;;
+    *)
+  echo "Usage: $0 {start|stop|restart}"
+  exit 1
+  ;;
+esac
+
+exit 0
