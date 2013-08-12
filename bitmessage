@@ -18,32 +18,27 @@
 SERVICE='bitmessage'
 LOGFILE='/dev/null' # this disables logging
 # LOGFILE='/var/log/bitmessage.log' # comment out the above line and un-comment this line to save a log
-COMMAND='python bitmessagemain.py > $LOGFILE'
+COMMAND="python bitmessagemain.py > $LOGFILE"
 USERNAME='root'
-NICELEVEL='19' # from 0-19 the bigger the number, the less the impact on system resources
+NICELEVEL=19 # from 0-19 the bigger the number, the less the impact on system resources
 HISTORY=1024
-PBM_LOCATION="/path/to/PyBitmessage/src" # by default this $HOME/PyBitmessage/src $HOME is the home of the the above USERNAME
+PBM_LOCATION="/root/PyBitmessage/src" # by default this $HOME/PyBitmessage/src $HOME is the home of the the above USERNAME
 INVOCATION="nice -n ${NICELEVEL} ${COMMAND}"
+PATH='/usr/lib/qt4/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/bin/core_perl:/sbin:/usr/sbin:/bin'
 
-ME=`whoami`
-as_user() {
-  if [ $ME == $USERNAME ] ; then
-    bash -c "$1"
-  else
-    su - $USERNAME -c "$1"
-  fi
-}
+
+
 
 bm_start() {
 echo "Starting $SERVICE..."
-cd $PBM_LOCATION
-as_user "cd $PBM_LOCATION && screen -h $HISTORY -dmS bitmessage $INVOCATION"
+cd ${PBM_LOCATION}
+su --command "screen -h ${HISTORY} -dmS ${SERVICE} ${INVOCATION}" $USERNAME
 }
 
 
 bm_stop() {
 echo "Stopping $SERVICE"
-as_user "screen -p 0 -S bitmessage -X stuff "'^C'""
+su --command "screen -p 0 -S ${SERVICE} -X stuff "'^C'"" $USERNAME
 }
 
 
