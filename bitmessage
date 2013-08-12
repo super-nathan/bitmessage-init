@@ -52,6 +52,7 @@ case "$1" in
     ;;
   restart)
     bm_stop
+    sleep 60s
     bm_start
     ;;
     *)
