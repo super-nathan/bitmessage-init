@@ -31,7 +31,8 @@ As root do the following
 
 6) Have it autostart (optional)
 
-    update-rc.d enable bitmessage
+    update-rc.d bitmessage defaults
+    update-rc.d bitmessage enable
 
 7) Start bitmessage
 
